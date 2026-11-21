@@ -1,0 +1,10 @@
+{
+  "name": "mr-workflow",
+  "version": "0.1.0",
+  "description": "Git and merge request skills for GitHub (gh) and GitLab (glab): git-branch, git-commit, mr-create, mr-review, mr-comment-addresser, mr-babysit, test-write",
+  "author": {
+    "name": "Riesh Bissessur"
+  },
+  "license": "MIT",
+  "keywords": ["git", "github", "gitlab", "merge-request", "pull-request", "ci", "testing"]
+}
