@@ -1,6 +1,5 @@
 import argparse
 import contextlib
-import importlib.util
 import io
 import json
 
@@ -12,21 +11,15 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
-ROOT = Path(__file__).resolve().parents[1]
+from helpers import SKILLS, load
 
+ROOT = SKILLS.parent
 
-def load_module(name, relative):
-    spec = importlib.util.spec_from_file_location(name, ROOT / relative)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
-branch = load_module("mr_workflow_branch", "skills/git-branch/scripts/branch.py")
-commit = load_module("mr_workflow_commit", "skills/git-commit/scripts/commit.py")
-forge = load_module("mr_workflow_forge", "skills/mr-create/scripts/forge.py")
-review = load_module("mr_workflow_review", "skills/mr-review/scripts/review_tools.py")
-runner = load_module("mr_workflow_runner", "skills/test-write/scripts/test_runner.py")
+branch = load("mr_workflow_branch", SKILLS / "git-branch/scripts/branch.py")
+commit = load("mr_workflow_commit", SKILLS / "git-commit/scripts/commit.py")
+forge = load("mr_workflow_forge", SKILLS / "mr-create/scripts/forge.py")
+review = load("mr_workflow_review", SKILLS / "mr-review/scripts/review_tools.py")
+runner = load("mr_workflow_runner", SKILLS / "test-write/scripts/test_runner.py")
 
 
 def proc(returncode=0, stdout="", stderr=""):
@@ -70,7 +63,7 @@ class CommitTests(unittest.TestCase):
         self.assertEqual(header, "fix(billing/invoices)!: round totals")
 
     def test_prestaged_unrelated_file_is_rejected_before_staging(self):
-        argv = ["commit.py", "--type", "fix", "--message", "round totals", "--add", "billing.py"]
+        argv = ["--type", "fix", "--message", "round totals", "--add", "billing.py"]
 
         def fake_git(*args, cwd=None):
             if args[:3] == ("rev-parse", "--abbrev-ref", "HEAD"):
@@ -81,13 +74,12 @@ class CommitTests(unittest.TestCase):
                 return ""
             self.fail(f"unexpected git call: {args}")
 
-        with mock.patch.object(sys, "argv", argv), \
-                mock.patch.object(commit, "repo_root", return_value=Path("/repo")), \
+        with mock.patch.object(commit, "repo_root", return_value=Path("/repo")), \
                 mock.patch.object(commit, "validate", return_value=("fix: round totals", "round totals")), \
                 mock.patch.object(commit, "default_branch", return_value="main"), \
                 mock.patch.object(commit, "git", side_effect=fake_git) as git_mock, \
                 contextlib.redirect_stderr(io.StringIO()):
-            self.assertEqual(commit.main(), 2)
+            self.assertEqual(commit.main(argv), 2)
         self.assertFalse(any(call.args and "add" in call.args for call in git_mock.mock_calls))
 
 
@@ -102,7 +94,7 @@ class BranchTests(unittest.TestCase):
             branch.validate(args)
 
     def test_dry_run_does_not_fetch_or_switch(self):
-        argv = ["branch.py", "--type", "feat", "--summary", "add login", "--dry-run"]
+        argv = ["--type", "feat", "--summary", "add login", "--dry-run"]
 
         def fake_git(*args, check=True):
             if args[:2] == ("rev-parse", "--verify") and args[2].startswith("refs/heads/"):
@@ -111,16 +103,15 @@ class BranchTests(unittest.TestCase):
                 return True, "sha"
             self.fail(f"unexpected git call: {args}")
 
-        with mock.patch.object(sys, "argv", argv), \
-                mock.patch.object(branch, "valid_ref", return_value=True), \
+        with mock.patch.object(branch, "valid_ref", return_value=True), \
                 mock.patch.object(branch, "default_base", return_value="main"), \
                 mock.patch.object(branch, "git", side_effect=fake_git) as git_mock, \
                 contextlib.redirect_stdout(io.StringIO()):
-            self.assertEqual(branch.main(), 0)
+            self.assertEqual(branch.main(argv), 0)
         self.assertFalse(any("fetch" in call.args or "switch" in call.args for call in git_mock.mock_calls))
 
     def test_failed_fetch_does_not_use_stale_remote_base(self):
-        argv = ["branch.py", "--type", "feat", "--summary", "add login"]
+        argv = ["--type", "feat", "--summary", "add login"]
 
         def fake_git(*args, check=True):
             if args[:2] == ("rev-parse", "--verify") and args[2].startswith("refs/heads/"):
@@ -131,12 +122,11 @@ class BranchTests(unittest.TestCase):
                 return False, "network unavailable"
             self.fail(f"unexpected git call: {args}")
 
-        with mock.patch.object(sys, "argv", argv), \
-                mock.patch.object(branch, "valid_ref", return_value=True), \
+        with mock.patch.object(branch, "valid_ref", return_value=True), \
                 mock.patch.object(branch, "default_base", return_value="main"), \
                 mock.patch.object(branch, "git", side_effect=fake_git) as git_mock, \
                 contextlib.redirect_stderr(io.StringIO()):
-            self.assertEqual(branch.main(), 1)
+            self.assertEqual(branch.main(argv), 1)
         self.assertFalse(any("switch" in call.args for call in git_mock.mock_calls))
 
 

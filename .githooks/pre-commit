@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Native Git pre-commit hook.
+#
+# Install once per clone:
+#   scripts/install_hooks.sh
+#
+# Runs the pipeline only when a commit stages a Python file. Docs, README and
+# SKILL.md changes skip the suite. A failing pipeline rejects the commit.
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+python_staged=false
+while IFS= read -r -d '' path; do
+  case "$path" in
+    *.py)
+      python_staged=true
+      break
+      ;;
+  esac
+done < <(git diff --cached --name-only --diff-filter=ACMR -z)
+
+if [ "$python_staged" = false ]; then
+  exit 0
+fi
+
+exec python3 scripts/pipeline_check.py

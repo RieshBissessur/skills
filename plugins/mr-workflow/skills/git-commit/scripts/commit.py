@@ -145,7 +145,7 @@ def validate(args, root):
     return header, message
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description="Create a Conventional Commit from parameters.")
     parser.add_argument("--type", required=True, help=f"one of: {', '.join(TYPES)}")
     parser.add_argument("--service", help="service or area, e.g. billing")
@@ -156,7 +156,7 @@ def main():
     parser.add_argument("--add", nargs="+", metavar="PATH", help="paths to stage and commit")
     parser.add_argument("--all", action="store_true", help="stage all changes (git add -A)")
     parser.add_argument("--validate-only", action="store_true", help="check parameters, do not commit")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     try:
         root = repo_root() if args.add or not args.validate_only else None

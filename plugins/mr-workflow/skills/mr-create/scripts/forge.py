@@ -587,7 +587,6 @@ def existing_mr_result(ctx, head):
 
 
 def cmd_mr_create(args):
-    ctx = detect_context()
     title = args.title.strip()
     problems = []
     if not title:
@@ -604,11 +603,13 @@ def cmd_mr_create(args):
     except ValidationError as error:
         problems.extend(error.problems)
         body = ""
-    head = args.head or current_branch()
-    if not args.no_push and head != current_branch():
-        problems.append("--head must be the current branch when pushing; switch to it or use --no-push")
     if problems:
         raise ValidationError(problems)
+
+    ctx = detect_context()
+    head = args.head or current_branch()
+    if not args.no_push and head != current_branch():
+        raise ValidationError(["--head must be the current branch when pushing; switch to it or use --no-push"])
     base = args.base or default_base()
 
     if args.no_push:

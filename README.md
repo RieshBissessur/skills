@@ -27,7 +27,7 @@ Each skill documents only the commands it owns. When a skill needs another skill
 
 ## Install
 
-Install all six skills together. Skills call each other through sibling paths (`../git-commit/scripts/commit.py`), so a partial install breaks the calls.
+Install all seven skills together. Skills call each other through sibling paths (`../git-commit/scripts/commit.py`), so a partial install breaks the calls.
 
 ### Claude Code
 
@@ -39,7 +39,7 @@ Install all six skills together. Skills call each other through sibling paths (`
 For a local checkout:
 
 ```
-/plugin marketplace add /Users/rieshbissessur/Downloads/Git/skills
+/plugin marketplace add <path-to-your-checkout>
 /plugin install mr-workflow@git-skills
 ```
 
@@ -96,6 +96,9 @@ Key limits:
 ```
 skills/
 ├── .claude-plugin/marketplace.json            # Claude Code marketplace manifest
+├── .githooks/pre-commit                       # native Git hook (core.hooksPath)
+├── .pre-commit-config.yaml                    # pre-commit framework config
+├── .github/workflows/tests.yml                # CI: pipeline on push and pull request
 ├── plugins/mr-workflow/
 │   ├── .claude-plugin/plugin.json             # Claude Code plugin manifest
 │   └── skills/
@@ -106,7 +109,8 @@ skills/
 │       ├── mr-babysit/            SKILL.md, references/{github,gitlab,failure-triage}.md
 │       ├── mr-review/             SKILL.md, references/{intent,review-areas,github,gitlab,rust,go}.md, scripts/review_tools.py
 │       └── test-write/            SKILL.md, references/{test-types,rust,go}.md, scripts/test_runner.py
-├── scripts/install.sh                         # OpenCode / Claude skill folder install
+├── scripts/                                   # pipeline_check.py, verify_hook.sh, install_hooks.sh, audit.py, install.sh
+├── tests/                                     # unit and integration tests
 └── README.md
 ```
 
@@ -127,10 +131,34 @@ Reference rules:
 
 ## Development
 
-After editing a script, check it compiles:
+### Tests and hooks
+
+The pipeline compiles every script, then runs the full suite in `tests/`:
 
 ```
-python3 -m py_compile plugins/mr-workflow/skills/*/scripts/*.py
+python3 scripts/pipeline_check.py
+```
+
+A commit that stages a Python file runs the pipeline; a commit that only changes
+docs, README or `SKILL.md` skips it. A failing pipeline rejects the commit.
+
+Two canonical hook setups are supported. Use one per clone:
+
+```
+scripts/install_hooks.sh     # native Git hook via core.hooksPath=.githooks
+pre-commit install           # pre-commit framework via .pre-commit-config.yaml
+```
+
+Prove the native hook end to end (pass, skip and block cases):
+
+```
+bash scripts/verify_hook.sh
+```
+
+Audit the repository for secrets, personal paths, hook setup and pipeline health:
+
+```
+python3 scripts/audit.py
 ```
 
 Keep sibling paths valid: if you rename a skill folder, update every `../<name>/` pointer.

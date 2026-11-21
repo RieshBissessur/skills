@@ -1,0 +1,18 @@
+# Canonical pre-commit configuration for the pre-commit framework.
+#
+# Install once per clone:
+#   pipx install pre-commit        # or: python3 -m pip install --user pre-commit
+#   pre-commit install
+#
+# The hook runs the pipeline only when a staged file matches `files`.
+# Docs, README and SKILL.md changes do not match, so they commit without tests.
+repos:
+  - repo: local
+    hooks:
+      - id: pipeline-check
+        name: pipeline check (unit tests + compile)
+        entry: python3 scripts/pipeline_check.py
+        language: system
+        files: '\.py$'
+        pass_filenames: false
+        stages: [pre-commit]

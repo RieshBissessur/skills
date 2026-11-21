@@ -300,8 +300,8 @@ def build_parser():
     return parser
 
 
-def main():
-    args = build_parser().parse_args()
+def main(argv=None):
+    args = build_parser().parse_args(argv)
     handlers = {"start": cmd_start, "callers": cmd_callers, "cleanup": cmd_cleanup}
     try:
         print(json.dumps(handlers[args.cmd](args), indent=2))

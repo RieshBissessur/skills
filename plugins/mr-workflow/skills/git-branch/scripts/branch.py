@@ -75,14 +75,14 @@ def validate(args):
     return summary
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description="Create a convention-named branch.")
     parser.add_argument("--type", required=True, help=f"one of: {', '.join(TYPES)}")
     parser.add_argument("--summary", required=True, help="short description of the work, max 80 chars")
     parser.add_argument("--ticket", help="ticket id such as ABC-123")
     parser.add_argument("--base", help="base branch (default: remote default branch, else main)")
     parser.add_argument("--dry-run", action="store_true")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     try:
         if args.type not in TYPES:
