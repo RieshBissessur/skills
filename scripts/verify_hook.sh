@@ -70,4 +70,14 @@ if [ "$before" != "$after" ]; then
 fi
 echo "  ok: commit rejected"
 
+# Remove the intentionally failing test, then prove a deleted Python file still
+# runs the pipeline (a deletion is a change to Python code).
+git reset -q HEAD tests/test_hook_failure.py
+rm -f tests/test_hook_failure.py
+
+echo "== case 4: deleting a Python file runs the pipeline"
+git rm -q scripts/new_thing.py
+git commit -qm "chore: remove new script"
+git log -1 --format='  committed: %s'
+
 echo "verify_hook: ok"

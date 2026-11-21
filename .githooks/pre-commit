@@ -19,7 +19,7 @@ while IFS= read -r -d '' path; do
       break
       ;;
   esac
-done < <(git diff --cached --name-only --diff-filter=ACMR -z)
+done < <(git diff --cached --name-only --diff-filter=ACMRD -z)
 
 if [ "$python_staged" = false ]; then
   exit 0
