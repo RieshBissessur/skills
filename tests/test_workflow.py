@@ -406,7 +406,7 @@ def stat_mode(path):
 class StructureTests(unittest.TestCase):
     def test_all_skills_have_consistent_frontmatter_and_descriptions(self):
         skills = sorted((ROOT / "skills").glob("*/SKILL.md"))
-        self.assertEqual(len(skills), 7)
+        self.assertEqual(len(skills), 9)
         for path in skills:
             lines = path.read_text().splitlines()
             self.assertEqual(lines[0], "---")

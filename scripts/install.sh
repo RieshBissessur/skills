@@ -8,7 +8,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="$ROOT/plugins/mr-workflow/skills"
-SKILLS=(git-branch git-commit mr-create mr-comment-addresser mr-babysit test-write mr-review)
+SKILLS=(git-branch git-commit mr-create mr-comment-addresser mr-babysit test-write mr-review go-code rust-code)
 
 targets=()
 while [[ $# -gt 0 ]]; do

@@ -1,6 +1,6 @@
 # git-skills
 
-A skills marketplace for Git and merge-request workflows. Works with **Claude Code** (plugin marketplace) and **OpenCode** (skills folder), against **GitHub** (`gh`) and **GitLab** (`glab`).
+A skills marketplace for Git, merge-request, and code-writing workflows. Works with **Claude Code** (plugin marketplace) and **OpenCode** (skills folder), against **GitHub** (`gh`) and **GitLab** (`glab`).
 
 ## Skills
 
@@ -12,6 +12,8 @@ A skills marketplace for Git and merge-request workflows. Works with **Claude Co
 | `mr-comment-addresser` | Triages review threads, fixes valid items, replies, and resolves addressed threads | `mr-create` (forge), `git-commit`, `test-write` |
 | `mr-babysit` | Watches the pipeline, fixes failures and warnings, pushes, repeats until green | `mr-create` (forge), `git-commit`, `test-write` |
 | `test-write` | Writes unit, integration and other tests following the language reference, then runs them | `git-commit` (when asked) |
+| `go-code` | Writes canonical Go: idiomatic naming, contract comments, wrapped errors, small interfaces, and table-driven tests | `test-write` (Go test mechanics) |
+| `rust-code` | Writes safe Rust: exhaustive matching, explicit errors, clear naming, and tests in separate files | `test-write` (Rust test mechanics) |
 | `mr-review` | Reviews a PR/MR: establishes intent from linked issues and description, then checks logic, performance, security, and repo and language conventions. Reports only; posts nothing | `mr-create` (provider data), `test-write` (language, optional tests) |
 
 Every skill keeps its output short: state the issue, the action needed, or what was done.
@@ -27,7 +29,7 @@ Each skill documents only the commands it owns. When a skill needs another skill
 
 ## Install
 
-Install all seven skills together. Skills call each other through sibling paths (`../git-commit/scripts/commit.py`), so a partial install breaks the calls.
+Install all nine skills together. Skills call each other through sibling paths (`../git-commit/scripts/commit.py`), so a partial install breaks the calls.
 
 ### Claude Code
 
@@ -108,7 +110,9 @@ skills/
 │       ├── mr-comment-addresser/  SKILL.md, references/{github,gitlab,triage}.md
 │       ├── mr-babysit/            SKILL.md, references/{github,gitlab,failure-triage}.md
 │       ├── mr-review/             SKILL.md, references/{intent,review-areas,github,gitlab,rust,go}.md, scripts/review_tools.py
-│       └── test-write/            SKILL.md, references/{test-types,rust,go}.md, scripts/test_runner.py
+│       ├── test-write/            SKILL.md, references/{test-types,rust,go}.md, scripts/test_runner.py
+│       ├── go-code/               SKILL.md, references/conventions.md
+│       ├── rust-code/             SKILL.md, references/conventions.md
 ├── scripts/                                   # pipeline_check.py, verify_hook.sh, install_hooks.sh, audit.py, install.sh
 ├── tests/                                     # unit and integration tests
 └── README.md
@@ -123,6 +127,7 @@ Skills read only the file for the option in use:
 | `mr-create`, `mr-comment-addresser`, `mr-babysit` | `provider` from `forge.py context` | `references/github.md` **or** `references/gitlab.md` |
 | `test-write` | `language` from `test_runner.py detect` | `references/rust.md` **or** `references/go.md` |
 | `test-write` | always | `references/test-types.md` |
+| `go-code`, `rust-code` | always | `references/conventions.md` |
 
 Reference rules:
 

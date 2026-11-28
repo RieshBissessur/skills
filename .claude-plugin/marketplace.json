@@ -10,7 +10,7 @@
     {
       "name": "mr-workflow",
       "source": "./plugins/mr-workflow",
-      "description": "Branch, commit, MR creation, review-comment addressing, pipeline babysitting, and test writing for GitHub and GitLab",
+      "description": "Branch, commit, MR creation, review-comment addressing, pipeline babysitting, test writing, and opinionated Go and Rust code writing for GitHub and GitLab",
       "version": "0.1.0",
       "category": "development"
     }

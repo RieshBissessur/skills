@@ -128,7 +128,7 @@ def main():
     # Quality: install smoke test
     with tempfile.TemporaryDirectory() as d:
         r3 = subprocess.run(["bash", str(ROOT / "scripts/install.sh"), "--dir", d], cwd=ROOT, capture_output=True, text=True)
-        wanted = ["git-branch", "git-commit", "mr-create", "mr-comment-addresser", "mr-babysit", "test-write", "mr-review"]
+        wanted = ["git-branch", "git-commit", "mr-create", "mr-comment-addresser", "mr-babysit", "test-write", "mr-review", "go-code", "rust-code"]
         missing = [s for s in wanted if not (Path(d) / s).is_dir()]
         if r3.returncode != 0 or missing:
             findings.append(f"quality: install smoke test failed (missing: {missing}, rc={r3.returncode})")

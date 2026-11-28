@@ -3,7 +3,7 @@ import unittest
 
 from helpers import SKILLS
 
-REFERENCE_RE = re.compile(r"references/[A-Za-z0-9_-]+\.md")
+REFERENCE_RE = re.compile(r"(?<![\w./-])references/[A-Za-z0-9_-]+\.md")
 SIBLING_RE = re.compile(r"\.\./([A-Za-z0-9_-]+/[A-Za-z0-9_./-]+)")
 SKILL_SCRIPT_RE = re.compile(r"<skill-dir>/(scripts/[A-Za-z0-9_./-]+)")
 NAME_RE = re.compile(r"^name: (.+)$", re.MULTILINE)

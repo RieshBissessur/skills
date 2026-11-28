@@ -6,7 +6,7 @@ Read this file only when `test_runner.py detect` reports `language: rust`. Repo 
 
 | Type | Location | Compiled as |
 |------|----------|-------------|
-| Unit | `#[cfg(test)] mod tests { ... }` at the bottom of the source file | Part of the crate, can test private items |
+| Unit | `src/<module>/tests.rs`, declared with `#[cfg(test)] mod tests;` | Part of the crate, can test private items |
 | Integration | `tests/<name>.rs` at the crate root | Separate crate, public API only |
 | Shared helpers | `tests/common/mod.rs` (imported with `mod common;`) | Not a test on its own |
 | Doc / example | `///` code blocks in public items | Run by `cargo test --doc` |
@@ -15,6 +15,8 @@ Read this file only when `test_runner.py detect` reports `language: rust`. Repo 
 | Benchmark | `benches/<name>.rs` using `criterion` | `cargo bench` |
 
 Do not put a file directly in `tests/` for shared helpers: each top-level file in `tests/` becomes its own test binary. Use `tests/common/mod.rs`.
+
+Unit tests go in their own file, not in a large inline block. Keep the production file to one line, `#[cfg(test)] mod tests;`, and put the tests in `src/<module>/tests.rs`. For a module declared in `src/parse.rs`, that file is `src/parse/tests.rs`; for an inline module, it is the sibling file next to the declaring module.
 
 ## Commands
 
@@ -33,15 +35,19 @@ Do not put a file directly in `tests/` for shared helpers: each top-level file i
 ## Writing unit tests
 
 ```rust
+// src/parse.rs
 #[cfg(test)]
-mod tests {
-    use super::*;
+mod tests;
+```
 
-    #[test]
-    fn parse_port_rejects_zero() {
-        let err = parse_port("0").unwrap_err();
-        assert_eq!(err.kind(), ErrorKind::OutOfRange);
-    }
+```rust
+// src/parse/tests.rs
+use super::*;
+
+#[test]
+fn parse_port_rejects_zero() {
+    let err = parse_port("0").unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::OutOfRange);
 }
 ```
 
@@ -99,6 +105,7 @@ fn creating_an_order_persists_it() -> Result<(), Box<dyn std::error::Error>> {
 ## Common mistakes
 
 - Putting `#[test]` functions in `src/` for code that is only public-API behaviour. Move them to `tests/` when that makes the test clearer.
+- Leaving a large inline `#[cfg(test)] mod tests { ... }` block in a production file. Move it to `src/<module>/tests.rs`.
 - Forgetting `#[cfg(test)]` on the test module, which compiles test code into release builds.
 - Using `unwrap()` in helpers where the failure would be unclear. Use `expect("what was being set up")`.
 - Sharing state between tests through `static`. Each test should build its own state.
